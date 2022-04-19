@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>Gamedev Canvas Workshop</title>
+    <title>GamePark</title>
     <style>
         * { padding: 0; margin: 0; }
         canvas { background: #eee; display: block; margin: 0 auto; }
@@ -21,6 +21,7 @@
     var y = canvas.height-30;
     var dx = 2;
     var dy = -2;
+    var score = 0;
 
     //描写される円の半径を持つ変数
     var ballRadius = 10;
@@ -37,11 +38,11 @@
     var leftPressed = false;
 
     //壊すレンガ
-    var brickRowCount = 3;
+    var brickRowCount = 5;
     var brickColumnCount = 5;
-    var brickWidth = 75;
+    var brickWidth = 80;
     var brickHeight = 20;
-    var brickPadding = 10;
+    var brickPadding = 5;
     var brickOffsetTop = 30;
     var brickOffsetLeft = 30;
 
@@ -59,6 +60,17 @@
     //ボタンが押されているかどうかを検知するイベントリスナーの設定
     document.addEventListener("keydown", keyDownHandler, false);
     document.addEventListener("keyup", keyUpHandler, false);
+    //マウスのタッチ判定
+    document.addEventListener("mousemove", mouseMoveHandler, false);
+
+    function mouseMoveHandler(e) {
+        var relativeX = e.clientX - canvas.offsetLeft;
+        if (relativeX > 0 && relativeX < canvas.width) {
+            paddleX = relativeX - paddleWidth/2;
+        }
+    }
+
+
 
     //キーを押している時はtrue
     function keyDownHandler(e) {
@@ -88,17 +100,30 @@
 
     //こわしがボールにあたっときに消す処理
     function collisionDetection() {
-        for(var c=0; c<brickColumnCount; c++) {
-            for(var r=0; r<brickRowCount; r++) {
+        for (var c = 0; c < brickColumnCount; c++) {
+            for (var r = 0; r < brickRowCount; r++) {
                 var b = bricks[c][r];
-                if(b.status == 1) {
-                    if(x > b.x && x < b.x+brickWidth && y > b.y && y < b.y+brickHeight) {
+                if (b.status == 1) {
+                    if (x > b.x && x < b.x + brickWidth && y > b.y && y < b.y + brickHeight) {
                         dy = -dy;
                         b.status = 0;
+                        score++;
+                        if(score == brickColumnCount*brickColumnCount) {
+                        alert("長い間くそお世話になりました！！");
+                        document.location.reload();
+                        clearInterval(interval);
+                        }
+                    }
                     }
                 }
             }
         }
+
+
+    function drawScore() {
+        ctx.font = "16px Arial";
+        ctx.fillStyle = "#0095DD";
+        ctx.fillText("Score: "+score, 8, 20);
     }
 
 
@@ -116,7 +141,7 @@
                     bricks[c][r].y = brickY;
                     ctx.beginPath();
                     ctx.rect(brickX, brickY, brickWidth, brickHeight);
-                    ctx.fillStyle = "#0095DD";
+                    ctx.fillStyle = "#010101";
                     ctx.fill();
                     ctx.closePath();
                 }
@@ -129,7 +154,7 @@
     function drawBall() {
         ctx.beginPath();
         ctx.arc(x, y, ballRadius, 0, Math.PI*2);
-        ctx.fillStyle = "#0095DD";
+        ctx.fillStyle = "#010101";
         ctx.fill();
         ctx.closePath();
     }
@@ -138,7 +163,7 @@
     function drawPaddle() {
         ctx.beginPath();
         ctx.rect(paddleX, canvas.height-paddleHeight, paddleWidth, paddleHeight);
-        ctx.fillStyle = "#0095DD";
+        ctx.fillStyle = "#010101";
         ctx.fill();
         ctx.closePath();
     }
@@ -151,6 +176,7 @@
 
         drawBall();
         drawPaddle();
+        drawScore()
         collisionDetection();
 
 
@@ -170,12 +196,13 @@
             if (x > paddleX && x < paddleX + paddleWidth) {
                 dy = -dy;
             }
-            //それ以外はOUT
             else {
-                alert("GAME OVER");
+                alert("かぜひくなよ！");
                 document.location.reload();
                 clearInterval(interval);
             }
+            //それ以外はOUT
+
         }
 
 
@@ -188,11 +215,13 @@
         }
         x += dx;
         y += dy;
+
+        requestAnimationFrame(draw);
     }
 
 
     //繰り返すもの　ここでは１０ミリ秒おき
-    var interval = setInterval(draw, 10);
+    draw();
 
 </script>
 
