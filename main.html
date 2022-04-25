@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <title>Gamedev Canvas Workshop</title>
+    <link rel="stylesheet" href="main.css">
     <style>
         * { padding: 0; margin: 0; }
         canvas { background: #eee; display: block; margin: 0 auto; }
@@ -10,17 +11,24 @@
 </head>
 <body>
 
-<canvas id="myCanvas" width="480" height="320"></canvas>
+<canvas id="myCanvas" width="1000" height="600"></canvas>
 
 <script>
+
+    var Score = 0
+
     //canvasへの参照を取得
     var canvas = document.getElementById("myCanvas");
     //Canvasを描写するために２Dを使う
     var ctx = canvas.getContext("2d");
     var x = canvas.width/2;
-    var y = canvas.height-30;
-    var dx = 2;
-    var dy = -2;
+    var y = canvas.height-10
+
+    ;
+    var dx = 1;
+    var dy = 1;
+
+
 
     //描写される円の半径を持つ変数
     var ballRadius = 10;
@@ -37,8 +45,8 @@
     var leftPressed = false;
 
     //壊すレンガ
-    var brickRowCount = 3;
-    var brickColumnCount = 5;
+    var brickRowCount = 10;
+    var brickColumnCount = 11;
     var brickWidth = 75;
     var brickHeight = 20;
     var brickPadding = 10;
@@ -92,16 +100,22 @@
 
     //こわしがボールにあたっときに消す処理
     function collisionDetection() {
+
         for(var c=0; c<brickColumnCount; c++) {
             for(var r=0; r<brickRowCount; r++) {
                 var b = bricks[c][r];
                 if(b.status == 1) {
                     if(x > b.x && x < b.x+brickWidth && y > b.y && y < b.y+brickHeight) {
+                        Score += 10
+                        document.getElementById("score").value = Score;
                         dy = -dy;
                         b.status = 0;
+                        dx += 0.5
+                        dy += 0.5
                     }
                 }
             }
+
         }
     }
     //マウスで動かすためのイベントリスナー
@@ -207,6 +221,10 @@
     var interval = setInterval(draw, 10);
 
 </script>
+<div id="taiga">
+    スコア：<input tyep="text" value="0" id="score">
+</div>
+
 
 </body>
 </html>
